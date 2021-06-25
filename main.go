@@ -1,41 +1,17 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/gesquive/cli"
 	"github.com/timam/speedtest/utility"
-	"io"
-	"net/http"
 	"regexp"
 )
 
 
-func getPage(url string) (contents string, err error) {
-	// Create the string buffer
-	buffer := bytes.NewBuffer(nil)
-
-	// Get the data
-	resp, err := http.Get(url)
-	if err != nil {
-		return contents, err
-	}
-	defer resp.Body.Close()
-
-	// Writer the body to file
-	_, err = io.Copy(buffer, resp.Body)
-	if err != nil {
-		return contents, err
-	}
-	contents = buffer.String()
-
-	return
-}
-
 func getFastToken() (token string) {
 	baseURL := "https://fast.com"
 
-	fastBody, _ := getPage(baseURL)
+	fastBody, _ := utility.GetPage(baseURL)
 
 	// Extract the app script url
 	re := regexp.MustCompile("app-.*\\.js")
@@ -45,7 +21,7 @@ func getFastToken() (token string) {
 	cli.Debug("trying to get fast api token from %s", scriptURL)
 
 	// Extract the token
-	scriptBody, _ := getPage(scriptURL)
+	scriptBody, _ := utility.GetPage(scriptURL)
 
 	re = regexp.MustCompile("token:\"[[:alpha:]]*\"")
 	tokens := re.FindAllString(scriptBody, 1)
