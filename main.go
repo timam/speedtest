@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gesquive/cli"
+	"github.com/timam/speedtest/utility"
 	"io"
-	"log"
 	"net/http"
 	"regexp"
 )
@@ -56,11 +56,24 @@ func getFastToken() (token string) {
 	} else {
 		cli.Warn("no token found")
 	}
+	return
+}
 
+func getDownloadURLs(token string, urlCount uint64) (urls []string) {
+
+	url := fmt.Sprintf("https://api.fast.com/netflix/speedtest?https=true&token=%s&urlCount=%d", token, urlCount)
+	jsonData, _ := utility.GetPage(url)
+
+	re := regexp.MustCompile("(?U)\"url\":\"(.*)\"")
+	reUrls := re.FindAllStringSubmatch(jsonData, -1)
+	for _, arr := range reUrls{
+		urls = append(urls, arr[1])
+	}
 	return
 }
 
 func main()  {
-	mytoken := getFastToken()
-	log.Println(mytoken)
+	token := getFastToken()
+	urls := getDownloadURLs(token, 3)
+	fmt.Println(urls)
 }
